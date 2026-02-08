@@ -100,4 +100,95 @@ public class OPStorageOPTest {
         }
 
     }
+
+    @Test
+    public void testReceiveLongValues() {
+        // Test that receiveOP handles long values beyond Integer.MAX_VALUE
+        OPStorageOP storageOP = new OPStorageOP(null, () -> -1L);
+
+        // Receive Integer.MAX_VALUE
+        long received1 = storageOP.receiveOP(Integer.MAX_VALUE, false);
+        assertEquals(Integer.MAX_VALUE, received1);
+        assertEquals(BigInteger.valueOf(Integer.MAX_VALUE), storageOP.getStoredBig());
+
+        // Receive Long.MAX_VALUE on top of that
+        long received2 = storageOP.receiveOP(Long.MAX_VALUE, false);
+        assertEquals(Long.MAX_VALUE, received2);
+        BigInteger expected = BigInteger.valueOf(Integer.MAX_VALUE).add(BigInteger.valueOf(Long.MAX_VALUE));
+        assertEquals(expected, storageOP.getStoredBig());
+    }
+
+    @Test
+    public void testExtractOverflowRollover() {
+        // Test that extractOP correctly handles overflow rollover without off-by-one
+        OPStorageOP storageOP = new OPStorageOP(null, () -> -1L);
+
+        // Set up: overflowCount=1, valueStorage=5 → total = Long.MAX_VALUE + 5
+        storageOP.overflowCount = BigInteger.ONE;
+        storageOP.valueStorage = 5;
+        BigInteger initialTotal = storageOP.getStoredBig();
+        assertEquals(BigInteger.valueOf(Long.MAX_VALUE).add(BigInteger.valueOf(5)), initialTotal);
+
+        // Extract 100
+        long extracted = storageOP.extractOP(100, false);
+        assertEquals(100, extracted);
+        BigInteger afterExtract = storageOP.getStoredBig();
+        assertEquals(initialTotal.subtract(BigInteger.valueOf(100)), afterExtract);
+    }
+
+    @Test
+    public void testExtractOverflowMultipleRollovers() {
+        // Test repeated receive and extract cycles with overflow
+        OPStorageOP storageOP = new OPStorageOP(null, () -> -1L);
+
+        BigInteger total = BigInteger.ZERO;
+        Random random = new Random(42);
+
+        // Add a bunch of energy to create overflow
+        for (int i = 0; i < 100; i++) {
+            long toAdd = Math.abs(random.nextLong());
+            total = total.add(BigInteger.valueOf(toAdd));
+            storageOP.receiveOP(toAdd, false);
+        }
+        assertEquals(total, storageOP.getStoredBig());
+
+        // Now extract random amounts and verify total stays consistent
+        for (int i = 0; i < 50; i++) {
+            long toExtract = Math.abs(random.nextLong()) % 1000000L + 1;
+            total = total.subtract(BigInteger.valueOf(toExtract));
+            storageOP.extractOP(toExtract, false);
+            assertEquals(total, storageOP.getStoredBig(), "Mismatch after extract iteration " + i);
+        }
+    }
+
+    @Test
+    public void testLimitedCapacityReceive() {
+        // Test that limited capacity cores accept the correct amount
+        long capacity = 9_880_000_000L; // Tier 4 capacity
+        OPStorageOP storageOP = new OPStorageOP(null, () -> capacity);
+
+        // Try to receive Long.MAX_VALUE - should only accept up to capacity
+        long received = storageOP.receiveOP(Long.MAX_VALUE, false);
+        assertEquals(capacity, received);
+        assertEquals(BigInteger.valueOf(capacity), storageOP.getStoredBig());
+    }
+
+    @Test
+    public void testLimitedCapacityReceiveDifference() {
+        // Test that limited capacity cores accept different amounts for int vs long input
+        long capacity = 9_880_000_000L; // Tier 4 capacity (> Integer.MAX_VALUE)
+        OPStorageOP storageOP1 = new OPStorageOP(null, () -> capacity);
+        OPStorageOP storageOP2 = new OPStorageOP(null, () -> capacity);
+
+        long receivedInt = storageOP1.receiveOP(Integer.MAX_VALUE, false);
+        long receivedLong = storageOP2.receiveOP(Long.MAX_VALUE, false);
+
+        // Integer.MAX_VALUE < capacity, so it should accept all of Integer.MAX_VALUE
+        assertEquals(Integer.MAX_VALUE, receivedInt);
+        // Long.MAX_VALUE > capacity, so it should accept exactly capacity
+        assertEquals(capacity, receivedLong);
+        // The amounts should be different
+        assertEquals(BigInteger.valueOf(Integer.MAX_VALUE), storageOP1.getStoredBig());
+        assertEquals(BigInteger.valueOf(capacity), storageOP2.getStoredBig());
+    }
 }

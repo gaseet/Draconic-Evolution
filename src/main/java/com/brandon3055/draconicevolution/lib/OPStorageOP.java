@@ -63,7 +63,7 @@ public class OPStorageOP implements INBTSerializable<CompoundTag>, IValueHashabl
             if (!simulate) {
                 valueStorage -= maxExtract;
                 if (valueStorage <= 0) {
-                    valueStorage -= Long.MIN_VALUE;
+                    valueStorage += Long.MAX_VALUE;
                     overflowCount = overflowCount.subtract(BigInteger.ONE);
                 }
                 if (ioTracker != null) {
@@ -216,6 +216,26 @@ public class OPStorageOP implements INBTSerializable<CompoundTag>, IValueHashabl
     @Override
     public boolean canReceive() {
         return true;
+    }
+
+    @Override
+    public int receiveEnergy(int maxReceive, boolean simulate) {
+        return (int) Math.min(receiveOP(maxReceive, simulate), Integer.MAX_VALUE);
+    }
+
+    @Override
+    public int extractEnergy(int maxExtract, boolean simulate) {
+        return (int) Math.min(extractOP(maxExtract, simulate), Integer.MAX_VALUE);
+    }
+
+    @Override
+    public int getEnergyStored() {
+        return (int) Math.min(getOPStored(), Integer.MAX_VALUE);
+    }
+
+    @Override
+    public int getMaxEnergyStored() {
+        return (int) Math.min(getMaxOPStored(), Integer.MAX_VALUE);
     }
 
     public void setIOTracker(@javax.annotation.Nullable IOTracker ioTracker) {
