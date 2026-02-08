@@ -103,17 +103,25 @@ public class TileEnergyPylon extends TileBCore implements MultiBlockController {
 
         @Override
         public int receiveEnergy(int maxReceive, boolean simulate) {
-            return (int) receiveOP(maxReceive, simulate);
+            return (int) Math.min(receiveOP(maxReceive, simulate), Integer.MAX_VALUE);
         }
 
         @Override
         public int extractEnergy(int maxExtract, boolean simulate) {
-            return (int) extractOP(maxExtract, simulate);
+            return (int) Math.min(extractOP(maxExtract, simulate), Integer.MAX_VALUE);
         }
 
         @Override
         public int getEnergyStored() {
-            return (int) Math.min(getOPStored(), Integer.MAX_VALUE / 2);
+            long stored = getOPStored();
+            long max = getMaxOPStored();
+            if (max <= Integer.MAX_VALUE) {
+                return (int) Math.min(stored, Integer.MAX_VALUE);
+            }
+            // For large/unlimited capacity cores, scale proportionally to preserve ratio
+            // while leaving room for FE transfers
+            double ratio = (double) stored / (double) max;
+            return (int) (ratio * (Integer.MAX_VALUE - 1));
         }
 
         @Override
