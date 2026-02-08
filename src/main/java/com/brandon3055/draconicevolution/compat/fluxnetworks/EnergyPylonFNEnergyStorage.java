@@ -13,18 +13,12 @@ public class EnergyPylonFNEnergyStorage implements IFNEnergyStorage {
 
     @Override
     public long receiveEnergyL(long maxReceive, boolean simulate) {
-        if (pylon.coreOffset.isNull() || !pylon.opAdapter.canReceive() || pylon.getCore() == null || !pylon.getCore().active.get()) {
-            return 0;
-        }
-        return pylon.getCore().energy.receiveOP(maxReceive, simulate);
+        return pylon.opAdapter.receiveOP(maxReceive, simulate);
     }
 
     @Override
     public long extractEnergyL(long maxExtract, boolean simulate) {
-        if (pylon.coreOffset.isNull() || !pylon.opAdapter.canExtract() || pylon.getCore() == null || !pylon.getCore().active.get()) {
-            return 0;
-        }
-        return pylon.getCore().energy.extractOP(maxExtract, simulate);
+        return pylon.opAdapter.extractOP(maxExtract, simulate);
     }
 
     @Override
