@@ -40,4 +40,11 @@ license="CoFH \"Don't Be a Jerk\" License"
 	versionRange="[${bcore_version},)"
 	ordering="AFTER"
 	side="BOTH"
+[[dependencies.draconicevolution]]
+	modId="fluxnetworks"
+	type="optional"
+	reason="Enables long-based energy transfer via Flux Networks API"
+	versionRange="[8.0.0,)"
+	ordering="AFTER"
+	side="BOTH"
 

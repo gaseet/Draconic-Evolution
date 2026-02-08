@@ -64,6 +64,10 @@ repositories {
         content { includeGroup("cc.tweaked") }
     }
     maven { url = "https://maven.blamejared.com/" }
+    maven {
+        url = "https://www.cursemaven.com"
+        content { includeGroup("curse.maven") }
+    }
 }
 
 dependencies {
@@ -88,6 +92,9 @@ dependencies {
     implementation("cc.tweaked:cc-tweaked-${mc_version}-forge:${cct_version}") {
         transitive false
     }
+
+    // Flux Networks API compatibility (optional)
+    compileOnly "curse.maven:flux-networks-248020:6089446"
 
     // For Testing
 //    runtimeOnly fg.deobf("mekanism:Mekanism:1.18.2-10.2.5.465")// core
