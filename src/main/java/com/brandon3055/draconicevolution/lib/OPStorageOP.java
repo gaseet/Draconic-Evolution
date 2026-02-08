@@ -220,14 +220,12 @@ public class OPStorageOP implements INBTSerializable<CompoundTag>, IValueHashabl
 
     @Override
     public int receiveEnergy(int maxReceive, boolean simulate) {
-        long longReceive = maxReceive >= Integer.MAX_VALUE ? Long.MAX_VALUE : maxReceive;
-        return (int) Math.min(receiveOP(longReceive, simulate), Integer.MAX_VALUE);
+        return (int) Math.min(receiveOP(maxReceive, simulate), Integer.MAX_VALUE);
     }
 
     @Override
     public int extractEnergy(int maxExtract, boolean simulate) {
-        long longExtract = maxExtract >= Integer.MAX_VALUE ? Long.MAX_VALUE : maxExtract;
-        return (int) Math.min(extractOP(longExtract, simulate), Integer.MAX_VALUE);
+        return (int) Math.min(extractOP(maxExtract, simulate), Integer.MAX_VALUE);
     }
 
     @Override
