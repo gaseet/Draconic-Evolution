@@ -46,7 +46,7 @@ public class TileReactorInjector extends TileReactorComponent {
 
         @Override
         public int receiveEnergy(int maxReceive, boolean simulate) {
-            return (int) receiveOP(maxReceive, simulate);
+            return (int) Math.min(receiveOP(maxReceive, simulate), Integer.MAX_VALUE);
         }
 
         @Override

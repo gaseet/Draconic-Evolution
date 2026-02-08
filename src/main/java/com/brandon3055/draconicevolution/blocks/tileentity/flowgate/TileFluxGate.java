@@ -194,12 +194,12 @@ public class TileFluxGate extends TileFlowGate {
 
         @Override
         public int receiveEnergy(int maxReceive, boolean simulate) {
-            return (int) receiveOP(maxReceive, simulate);
+            return (int) Math.min(receiveOP(maxReceive, simulate), Integer.MAX_VALUE);
         }
 
         @Override
         public int extractEnergy(int maxExtract, boolean simulate) {
-            return (int) extractOP(maxExtract, simulate);
+            return (int) Math.min(extractOP(maxExtract, simulate), Integer.MAX_VALUE);
         }
 
         @Override
