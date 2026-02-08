@@ -191,4 +191,34 @@ public class OPStorageOPTest {
         assertEquals(BigInteger.valueOf(Integer.MAX_VALUE), storageOP1.getStoredBig());
         assertEquals(BigInteger.valueOf(capacity), storageOP2.getStoredBig());
     }
+
+    @Test
+    public void testReceiveWhenOverCapacityReturnsZero() {
+        // Test that receiveOP returns 0 (not negative) when valueStorage exceeds limit
+        long capacity = 1_000_000L;
+        OPStorageOP storageOP = new OPStorageOP(null, () -> capacity);
+
+        // Manually set valueStorage above the limit (simulates config change or edge case)
+        storageOP.valueStorage = capacity + 500_000L;
+
+        // receiveOP should return 0 (not a negative value) since storage > capacity
+        long received = storageOP.receiveOP(Long.MAX_VALUE, false);
+        assertEquals(0, received);
+        // valueStorage should not change
+        assertEquals(capacity + 500_000L, storageOP.valueStorage);
+    }
+
+    @Test
+    public void testReceiveWhenOverCapacitySimulate() {
+        // Test simulate mode also returns 0 when over capacity
+        long capacity = 1_000_000L;
+        OPStorageOP storageOP = new OPStorageOP(null, () -> capacity);
+
+        storageOP.valueStorage = capacity + 100L;
+
+        long received = storageOP.receiveOP(1000, true);
+        assertEquals(0, received);
+        // valueStorage should not change in simulate mode
+        assertEquals(capacity + 100L, storageOP.valueStorage);
+    }
 }
