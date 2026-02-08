@@ -26,6 +26,7 @@ import net.covers1624.quack.util.CrashLock;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.bus.api.IEventBus;
+import net.neoforged.fml.ModList;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 
@@ -112,5 +113,10 @@ public class CapabilityData {
         TileCrystalDirectIO.register(event);
         TileCrystalRelay.register(event);
         TileCrystalWirelessIO.register(event);
+
+        // Flux Networks API compatibility (optional)
+        if (ModList.get().isLoaded("fluxnetworks")) {
+            com.brandon3055.draconicevolution.compat.fluxnetworks.FluxNetworksCompat.registerCapabilities(event);
+        }
     }
 }
