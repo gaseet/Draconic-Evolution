@@ -103,12 +103,14 @@ public class TileEnergyPylon extends TileBCore implements MultiBlockController {
 
         @Override
         public int receiveEnergy(int maxReceive, boolean simulate) {
-            return (int) Math.min(receiveOP(maxReceive, simulate), Integer.MAX_VALUE);
+            long longReceive = maxReceive >= Integer.MAX_VALUE ? Long.MAX_VALUE : maxReceive;
+            return (int) Math.min(receiveOP(longReceive, simulate), Integer.MAX_VALUE);
         }
 
         @Override
         public int extractEnergy(int maxExtract, boolean simulate) {
-            return (int) Math.min(extractOP(maxExtract, simulate), Integer.MAX_VALUE);
+            long longExtract = maxExtract >= Integer.MAX_VALUE ? Long.MAX_VALUE : maxExtract;
+            return (int) Math.min(extractOP(longExtract, simulate), Integer.MAX_VALUE);
         }
 
         @Override
