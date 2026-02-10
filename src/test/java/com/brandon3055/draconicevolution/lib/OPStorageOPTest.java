@@ -180,15 +180,29 @@ public class OPStorageOPTest {
         OPStorageOP storageOP1 = new OPStorageOP(null, () -> capacity);
         OPStorageOP storageOP2 = new OPStorageOP(null, () -> capacity);
 
-        long receivedInt = storageOP1.receiveOP(Integer.MAX_VALUE, false);
+        // receiveEnergy uses the Forge int API: parameter capped at Integer.MAX_VALUE
+        int receivedInt = storageOP1.receiveEnergy(Integer.MAX_VALUE, false);
+        // receiveOP uses the long API: can accept up to full capacity in one call
         long receivedLong = storageOP2.receiveOP(Long.MAX_VALUE, false);
 
-        // Integer.MAX_VALUE < capacity, so it should accept all of Integer.MAX_VALUE
+        // Integer.MAX_VALUE < capacity, so receiveEnergy accepts all of Integer.MAX_VALUE
         assertEquals(Integer.MAX_VALUE, receivedInt);
-        // Long.MAX_VALUE > capacity, so it should accept exactly capacity
+        // Long.MAX_VALUE > capacity, so receiveOP accepts exactly capacity
         assertEquals(capacity, receivedLong);
-        // The amounts should be different
+        // The actual stored amounts are different
         assertEquals(BigInteger.valueOf(Integer.MAX_VALUE), storageOP1.getStoredBig());
         assertEquals(BigInteger.valueOf(capacity), storageOP2.getStoredBig());
+
+        // The int API caps reported values at Integer.MAX_VALUE, so after receiving
+        // Integer.MAX_VALUE into a storage with capacity > Integer.MAX_VALUE,
+        // getEnergyStored() == getMaxEnergyStored() even though space remains
+        assertEquals(Integer.MAX_VALUE, storageOP1.getEnergyStored());
+        assertEquals(Integer.MAX_VALUE, storageOP1.getMaxEnergyStored());
+
+        // But the long API correctly reports remaining space
+        long remainingSpace = capacity - Integer.MAX_VALUE;
+        long receivedMore = storageOP1.receiveOP(remainingSpace, false);
+        assertEquals(remainingSpace, receivedMore);
+        assertEquals(BigInteger.valueOf(capacity), storageOP1.getStoredBig());
     }
 }
