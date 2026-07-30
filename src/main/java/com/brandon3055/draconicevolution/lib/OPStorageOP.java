@@ -96,7 +96,7 @@ public class OPStorageOP implements INBTSerializable<CompoundTag>, IValueHashabl
         long limit = capacity.get();
         //We act like a normal energy storage
         if (limit != -1) {
-            long energyReceived = Math.min(limit - valueStorage, maxReceive);
+            long energyReceived = Math.max(0, Math.min(limit - valueStorage, maxReceive));
             if (!simulate) {
                 valueStorage += energyReceived;
                 if (ioTracker != null) {

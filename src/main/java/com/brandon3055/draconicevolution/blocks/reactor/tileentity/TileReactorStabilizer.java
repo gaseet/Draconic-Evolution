@@ -72,7 +72,7 @@ public class TileReactorStabilizer extends TileReactorComponent {
 
         @Override
         public int extractEnergy(int maxExtract, boolean simulate) {
-            return (int) extractOP(maxExtract, simulate);
+            return (int) Math.min(extractOP(maxExtract, simulate), Integer.MAX_VALUE);
         }
 
         @Override
